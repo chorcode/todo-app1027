@@ -42,3 +42,14 @@ test('チェックボックスを押すと onToggle が TODO の id で呼ばれ
   await user.click(screen.getByRole('checkbox', { name: '牛乳を買う' }))
   expect(handleToggle).toHaveBeenCalledWith('abc')
 })
+
+test('削除ボタンを押すと onDelete が id で呼ばれる', async () => {
+  const user = userEvent.setup()
+  const handleToggle = jest.fn()
+  const handleDelete = jest.fn()
+  const todo = { id: 'abc', text: '牛乳を買う', done: false }
+  render(<TodoItem todo={todo} onToggle={handleToggle} onDelete={handleDelete} />)
+  await user.click(screen.getByRole('button', { name: '牛乳を買うを削除' }))
+  expect(handleDelete).toHaveBeenCalledWith('abc')
+  expect(handleToggle).not.toHaveBeenCalled()
+})

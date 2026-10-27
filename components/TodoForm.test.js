@@ -29,3 +29,25 @@ test('空白だけなら onAdd は呼ばれない', async () => {
   await user.type(screen.getByRole('textbox', { name: 'やること' }), '   {Enter}')
   expect(handleAdd).not.toHaveBeenCalled()
 })
+
+test('空のまま追加するとエラーメッセージが出る', async () => {
+  const user = userEvent.setup()
+  render(<TodoForm onAdd={jest.fn()} />)
+  await user.click(screen.getByRole('button', { name: '追加' }))
+  expect(screen.getByRole('alert')).toHaveTextContent('やることを入力してください')
+})
+
+test('入力を始めるとエラーメッセージが消える', async () => {
+  const user = userEvent.setup()
+  render(<TodoForm onAdd={jest.fn()} />)
+  await user.click(screen.getByRole('button', { name: '追加' }))
+  await user.type(screen.getByRole('textbox', { name: 'やること' }), 'a')
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+})
+
+test('普通に追加したときはエラーメッセージが出ない', async () => {
+  const user = userEvent.setup()
+  render(<TodoForm onAdd={jest.fn()} />)
+  await user.type(screen.getByRole('textbox', { name: 'やること' }), '牛乳を買う{Enter}')
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+})
