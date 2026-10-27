@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import TodoItem from './TodoItem'
+import userEvent from '@testing-library/user-event'
 
 test('TODO の文字が表示される', () => {
   const todo = { id: '1', text: '牛乳を買う', done: false }
@@ -31,4 +32,24 @@ test('未完了なら打ち消し線は付かない', () => {
   const todo = { id: '1', text: '牛乳を買う', done: false }
   render(<TodoItem todo={todo} onToggle={() => {}} onDelete={() => {}} />)
   expect(screen.getByText('牛乳を買う')).toHaveStyle({ textDecoration: 'none' })
+})
+
+test('チェックボックスを押すと onToggle が TODO の id で呼ばれる', async () => {
+  const user = userEvent.setup()
+  const handleToggle = jest.fn()
+  const todo = { id: 'abc', text: '牛乳を買う', done: false }
+  render(<TodoItem todo={todo} onToggle={handleToggle} onDelete={() => {}} />)
+  await user.click(screen.getByRole('checkbox', { name: '牛乳を買う' }))
+  expect(handleToggle).toHaveBeenCalledWith('abc')
+})
+
+test('削除ボタンを押すと onDelete が id で呼ばれる', async () => {
+  const user = userEvent.setup()
+  const handleToggle = jest.fn()
+  const handleDelete = jest.fn()
+  const todo = { id: 'abc', text: '牛乳を買う', done: false }
+  render(<TodoItem todo={todo} onToggle={handleToggle} onDelete={handleDelete} />)
+  await user.click(screen.getByRole('button', { name: '牛乳を買うを削除' }))
+  expect(handleDelete).toHaveBeenCalledWith('abc')
+  expect(handleToggle).not.toHaveBeenCalled()
 })
